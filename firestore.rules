@@ -1,0 +1,93 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper Functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isEmailVerified() {
+      return request.auth.token.email_verified == true;
+    }
+
+    function getBusinessId() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.businessId;
+    }
+
+    function isMemberOf(businessId) {
+      return isSignedIn() && getBusinessId() == businessId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow read: if isSignedIn() && request.auth.uid == userId;
+      allow create: if isSignedIn() && request.auth.uid == userId 
+        && request.resource.data.keys().hasAll(['uid', 'email', 'businessId', 'role'])
+        && request.resource.data.role == 'admin'; // First user is admin
+      allow update: if isSignedIn() && request.auth.uid == userId
+        && request.resource.data.businessId == resource.data.businessId
+        && request.resource.data.role == resource.data.role; // Immutable business and role
+    }
+
+    // Businesses Collection
+    match /businesses/{businessId} {
+      allow read: if isMemberOf(businessId);
+      allow create: if isSignedIn(); 
+      allow update: if isMemberOf(businessId) && resource.data.ownerId == request.auth.uid;
+
+      // Products subcollection
+      match /products/{productId} {
+        allow read: if isMemberOf(businessId);
+        allow write: if isMemberOf(businessId);
+      }
+
+      // Categories subcollection
+      match /categories/{categoryId} {
+        allow read: if isMemberOf(businessId);
+        allow write: if isMemberOf(businessId);
+      }
+
+      // Sales subcollection
+      match /sales/{saleId} {
+        allow read: if isMemberOf(businessId);
+        allow create: if isMemberOf(businessId);
+        allow update, delete: if false; // Sales are immutable
+      }
+
+      // Customers subcollection
+      match /customers/{customerId} {
+        allow read, write: if isMemberOf(businessId);
+      }
+
+      // Finance subcollection
+      match /finance/{transactionId} {
+        allow read, write: if isMemberOf(businessId);
+      }
+
+      // Invoices subcollection
+      match /invoices/{invoiceId} {
+        allow read, write: if isMemberOf(businessId);
+      }
+
+      // Config subcollection
+      match /config/{configId} {
+        allow read, write: if isMemberOf(businessId);
+      }
+    }
+
+    // Licenses Collection
+    match /licenses/{licenseId} {
+      allow read, write: if isSignedIn() && request.auth.token.email == 'valdneylima71@gmail.com' && request.auth.token.email_verified == true;
+    }
+  }
+}

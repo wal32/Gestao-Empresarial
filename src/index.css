@@ -1,0 +1,80 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-graphite: #1C1C1C;
+  --color-graphite-dark: #111111;
+  --color-neon-green: #CCFF00;
+  --color-gold: #D4AF37;
+  --color-soft-white: #F8F9FA;
+}
+
+@layer base {
+  body {
+    @apply bg-graphite-dark text-soft-white font-sans antialiased transition-colors duration-300;
+  }
+}
+
+.light-theme {
+  --color-graphite: #FFFFFF;
+  --color-graphite-dark: #F5F5F7;
+  --color-soft-white: #1C1C1C;
+  --color-neon-green: #2B2D42; /* A dark color for the neon contrast in light mode */
+}
+
+.light-theme .text-soft-white {
+  color: #1c1c1c;
+}
+
+.light-theme .bg-graphite {
+  background-color: #ffffff;
+}
+
+.light-theme .bg-graphite-dark {
+  background-color: #F5F5F7;
+}
+
+.light-theme .border-white\/5,
+.light-theme .border-white\/10 {
+  border-color: rgba(0, 0, 0, 0.05);
+}
+
+.light-theme .bg-white\/5 {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.light-theme .bg-white\/10 {
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+.light-theme .text-soft-white\/40,
+.light-theme .text-soft-white\/60 {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.light-theme .text-neon-green {
+  color: #000000;
+}
+
+.light-theme .bg-neon-green {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #111111;
+}
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #CCFF00;
+}
